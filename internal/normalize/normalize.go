@@ -1,5 +1,4 @@
 package normalize
-package normalize
 
 import (
 	"strings"
