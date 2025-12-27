@@ -46,18 +46,33 @@ func runScan(args []string) {
 	envStr := fs.String("env", "prod", "Environment: prod|staging|dev")
 	_ = fs.Parse(args)
 
-	if strings.TrimSpace(*input) == "" {
-		fmt.Println("ERROR: --input is required")
-		os.Exit(2)
-	}
-
 	env := policy.Env(strings.ToLower(strings.TrimSpace(*envStr)))
 	if env != policy.EnvProd && env != policy.EnvStaging && env != policy.EnvDev {
 		fmt.Println("ERROR: --env must be one of: prod|staging|dev")
 		os.Exit(2)
 	}
 
-	report, err := trivy.LoadReportFromFile(*input)
+	var report *trivy.Report
+	var err error
+
+	// Case 1: input file
+	if strings.TrimSpace(*input) != "" {
+		report, err = trivy.LoadReportFromFile(*input)
+	} else {
+		// Case 2: image name as arg
+		if fs.NArg() < 1 {
+			fmt.Println("ERROR: provide either --input <file> or an image name")
+			os.Exit(2)
+		}
+		image := fs.Arg(0)
+		data, err := trivy.RunImageScan(image)
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(2)
+		}
+		report, err = trivy.LoadReportFromBytes(data)
+	}
+
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(2)

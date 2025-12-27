@@ -37,3 +37,11 @@ func LoadReportFromFile(path string) (*Report, error) {
 	}
 	return &r, nil
 }
+
+func LoadReportFromBytes(b []byte) (*Report, error) {
+	var r Report
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, fmt.Errorf("parse trivy json: %w", err)
+	}
+	return &r, nil
+}

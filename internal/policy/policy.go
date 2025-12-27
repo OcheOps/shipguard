@@ -28,40 +28,46 @@ type RuleSet struct {
 // - warn on MEDIUM
 func Evaluate(env Env, findings []normalize.Finding) (Verdict, []string) {
 	reasons := []string{}
-	verdict := VerdictDeploy
 
+	// First pass: blockers only
 	for _, f := range findings {
 		if env == EnvProd && f.Severity == normalize.SevCritical && f.RuntimeRelevant {
-			verdict = VerdictBlock
-			reasons = append(reasons, "CRITICAL vulnerability at runtime: "+f.Package+" ("+f.ID+")")
+			reasons = append(reasons,
+				"CRITICAL vulnerability at runtime: "+f.Package+" ("+f.ID+")",
+			)
 			if f.FixAvailable {
-				reasons = append(reasons, "Fix available: upgrade "+f.Package+" to "+f.Fixed)
+				reasons = append(reasons,
+					"Fix available: upgrade "+f.Package+" to "+f.Fixed,
+				)
 			} else {
-				reasons = append(reasons, "No fix available yet (mitigation required)")
+				reasons = append(reasons,
+					"No fix available yet (mitigation required)",
+				)
 			}
-			continue
+			return VerdictBlock, reasons
 		}
 
 		if env == EnvProd && f.Severity == normalize.SevHigh && f.RuntimeRelevant && f.FixAvailable {
-			if verdict != VerdictBlock {
-				verdict = VerdictBlock
-			}
-			reasons = append(reasons, "HIGH vulnerability with available fix: "+f.Package+" ("+f.ID+")")
-			reasons = append(reasons, "Fix available: upgrade "+f.Package+" to "+f.Fixed)
-			continue
+			reasons = append(reasons,
+				"HIGH vulnerability with available fix: "+f.Package+" ("+f.ID+")",
+				"Fix available: upgrade "+f.Package+" to "+f.Fixed,
+			)
+			return VerdictBlock, reasons
 		}
+	}
 
+	// Second pass: warnings
+	for _, f := range findings {
 		if f.Severity == normalize.SevMedium {
-			if verdict == VerdictDeploy {
-				verdict = VerdictWarn
-			}
-			reasons = append(reasons, "MEDIUM vulnerability present: "+f.Package+" ("+f.ID+")")
+			reasons = append(reasons,
+				"MEDIUM vulnerability present: "+f.Package+" ("+f.ID+")",
+			)
 		}
 	}
 
-	// keep reasons short for human output (top 3-ish)
-	if len(reasons) > 6 {
-		reasons = reasons[:6]
+	if len(reasons) > 0 {
+		return VerdictWarn, reasons
 	}
-	return verdict, reasons
+
+	return VerdictDeploy, []string{"No policy-violating findings detected"}
 }
