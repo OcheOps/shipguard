@@ -1,0 +1,37 @@
+{
+  "Results": [
+    {
+      "Target": "alpine:3.20 (alpine 3.20.2)",
+      "Type": "alpine",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2024-9999",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.12-r0",
+          "FixedVersion": "3.0.14-r0",
+          "Severity": "CRITICAL",
+          "Title": "Example OpenSSL critical vulnerability",
+          "PrimaryURL": "https://example.com/CVE-2024-9999"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-1111",
+          "PkgName": "curl",
+          "InstalledVersion": "8.5.0-r0",
+          "FixedVersion": "",
+          "Severity": "HIGH",
+          "Title": "Example curl high vulnerability (no fix yet)",
+          "PrimaryURL": "https://example.com/CVE-2024-1111"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-2222",
+          "PkgName": "busybox",
+          "InstalledVersion": "1.36.1-r0",
+          "FixedVersion": "1.36.1-r1",
+          "Severity": "MEDIUM",
+          "Title": "Example medium issue",
+          "PrimaryURL": "https://example.com/CVE-2023-2222"
+        }
+      ]
+    }
+  ]
+}
