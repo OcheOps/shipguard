@@ -14,16 +14,17 @@ type Result struct {
 	Summary string
 }
 
-func Decide(env policy.Env, findings []normalize.Finding) Result {
-	v, reasons := policy.Evaluate(env, findings)
+// ✅ THIS is what main.go is calling
+func DecideWithPolicy(cfg *policy.Config, findings []normalize.Finding) Result {
+	verdict, reasons := policy.EvaluateWithConfig(cfg, findings)
 
 	summary := fmt.Sprintf(
 		"Findings: %d | Env: %s | Verdict: %s",
-		len(findings), env, v,
+		len(findings), cfg.Env, verdict,
 	)
 
 	return Result{
-		Verdict: v,
+		Verdict: verdict,
 		Reasons: reasons,
 		Summary: summary,
 	}
@@ -48,5 +49,6 @@ func FormatHuman(r Result) string {
 	} else {
 		b.WriteString("Reasons:\n- No policy-violating findings detected.\n")
 	}
+
 	return b.String()
 }

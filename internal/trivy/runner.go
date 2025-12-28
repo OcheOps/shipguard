@@ -8,13 +8,14 @@ import (
 
 func RunImageScan(image string) ([]byte, error) {
 	cmd := exec.Command(
-		"trivy",
-		"image",
-		"--quiet",
-		"--format",
-		"json",
-		image,
-	)
+	"trivy",
+	"image",
+	"--quiet",
+	"--format", "json",
+	"--scanners", "vuln",
+	image,
+)
+
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer

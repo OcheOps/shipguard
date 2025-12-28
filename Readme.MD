@@ -1,28 +1,47 @@
-## shipguard
+# Shipguard
 
-Problem
-Teams run container scans but don’t know whether they can safely deploy.
+**Shipguard is a deployment decision engine for container images.**
 
-What shipguard does
-Shipguard converts vulnerability scan output into a clear deployment verdict with human-readable reasoning.
+It turns noisy vulnerability scan output into a clear, actionable verdict:
+**DEPLOY**, **WARN**, or **BLOCK**.
 
-What shipguard is not
+---
 
-Not a vulnerability scanner
+## Problem
 
-Not a security gatekeeper
+Container scanners produce hundreds of findings.
+Engineers are left asking:
 
-Not a compliance tool
+- Can we deploy this image?
+- What actually blocks production?
+- What happens if we ignore this?
 
-How it works
+Shipguard answers those questions.
 
-Ingests Trivy scan output
+---
 
-Normalizes findings
+## What Shipguard Does
 
-Evaluates deployment risk
+- Runs Trivy with safe, CI-friendly defaults
+- Normalizes vulnerability findings
+- Applies explicit policy rules
+- Produces a deterministic deployment verdict
+- Exits with CI-compatible exit codes
 
-Produces a verdict
+---
 
-Why
-Because security findings are useless if engineers can’t act on them.
+## What Shipguard Is Not
+
+- ❌ A vulnerability scanner
+- ❌ A compliance platform
+- ❌ A security replacement
+
+Shipguard **supports decisions** — it does not make guarantees.
+
+---
+
+## Installation
+
+```bash
+go build -o shipguard ./cmd/shipguard
+sudo mv shipguard /usr/local/bin/

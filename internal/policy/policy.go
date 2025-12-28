@@ -26,42 +26,37 @@ type RuleSet struct {
 // - prod: block CRITICAL
 // - prod: block HIGH when fix is available
 // - warn on MEDIUM
-func Evaluate(env Env, findings []normalize.Finding) (Verdict, []string) {
+func EvaluateWithConfig(cfg *Config, findings []normalize.Finding) (Verdict, []string) {
 	reasons := []string{}
 
-	// First pass: blockers only
+	// BLOCK rules
 	for _, f := range findings {
-		if env == EnvProd && f.Severity == normalize.SevCritical && f.RuntimeRelevant {
+		for _, r := range cfg.Rules.Block {
+			if string(f.Severity) != r.Severity {
+				continue
+			}
+			if r.FixAvailable != nil && *r.FixAvailable != f.FixAvailable {
+				continue
+			}
+
 			reasons = append(reasons,
-				"CRITICAL vulnerability at runtime: "+f.Package+" ("+f.ID+")",
+				string(f.Severity)+" vulnerability: "+f.Package+" ("+f.ID+")",
 			)
 			if f.FixAvailable {
-				reasons = append(reasons,
-					"Fix available: upgrade "+f.Package+" to "+f.Fixed,
-				)
-			} else {
-				reasons = append(reasons,
-					"No fix available yet (mitigation required)",
-				)
+				reasons = append(reasons, "Fix available: upgrade "+f.Package+" to "+f.Fixed)
 			}
-			return VerdictBlock, reasons
-		}
-
-		if env == EnvProd && f.Severity == normalize.SevHigh && f.RuntimeRelevant && f.FixAvailable {
-			reasons = append(reasons,
-				"HIGH vulnerability with available fix: "+f.Package+" ("+f.ID+")",
-				"Fix available: upgrade "+f.Package+" to "+f.Fixed,
-			)
 			return VerdictBlock, reasons
 		}
 	}
 
-	// Second pass: warnings
+	// WARN rules
 	for _, f := range findings {
-		if f.Severity == normalize.SevMedium {
-			reasons = append(reasons,
-				"MEDIUM vulnerability present: "+f.Package+" ("+f.ID+")",
-			)
+		for _, r := range cfg.Rules.Warn {
+			if string(f.Severity) == r.Severity {
+				reasons = append(reasons,
+					string(f.Severity)+" vulnerability present: "+f.Package+" ("+f.ID+")",
+				)
+			}
 		}
 	}
 

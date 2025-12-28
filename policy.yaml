@@ -1,0 +1,18 @@
+env: prod
+
+rules:
+  block:
+    - severity: CRITICAL
+    - severity: HIGH
+      fix_available: true
+
+  warn:
+    - severity: MEDIUM
+
+metadata:
+  owner: platform-team
+  description: >
+    Production policy:
+    - Block critical vulnerabilities
+    - Block high severity if fix exists
+    - Warn on medium
